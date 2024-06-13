@@ -8,7 +8,7 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family: "Delicious Handrawn", cursive;
+  /* font-family: "Delicious Handrawn", cursive; */
 }
 
 .absolute-center{
@@ -24,4 +24,33 @@ input{
 
 .form-shadow{
   box-shadow: 1px -1px 35px -11px rgba(198,164,242,1);
+}
+
+#myCanvas{
+  width: 100%;
+  height:80vh;
+  border:1px solid black;
+}
+
+
+/* ----------SCRLLBAR------- */
+
+/* width */
+.chat-scroll::-webkit-scrollbar {
+  width: 2px;
+}
+
+/* Track */
+.chat-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #c79bff;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
