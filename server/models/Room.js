@@ -4,12 +4,15 @@ const RoomSchema = new mongoose.Schema({
   roomName: {
     type: String,
     unique: true,
+    require:true
   },
   roomPassword: {
     type: String,
+    require:true
   },
   roomOwner: {
     type: String,
+    require:true
   },
 });
 

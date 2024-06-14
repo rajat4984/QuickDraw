@@ -7,6 +7,7 @@ const {
 const Room = require("../models/Room");
 
 const createRoom = async (req, res) => {
+  console.log(req.body.userName)
   try {
     const userName = req.body.userName;
     let roomName = uniqueNamesGenerator({
@@ -20,7 +21,7 @@ const createRoom = async (req, res) => {
     const newRoom = new Room({
       roomName,
       roomPassword,
-      createdBy: userName,
+      roomOwner: userName,
     });
 
     await newRoom.save();
