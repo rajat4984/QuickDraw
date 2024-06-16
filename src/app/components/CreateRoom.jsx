@@ -8,17 +8,15 @@ const CreateRoom = ({ setShowJoinForm }) => {
   const createRoomHandler = async (e) => {
     e.preventDefault();
     
-    const {data} = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/room/createRoom`, {
+    const {data} = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/room/createRoom`, {
       userName: name,
     });
     const roomInfo = {
       roomName : data.roomName,
-      roomInfo: data.roomInfo,
       roomOwner : data.roomOwner
     }
 
-    localStorage.setItem(JSON.stringify(roomInfo),'roomInfo');
-
+    localStorage.setItem('roomInfo',JSON.stringify(roomInfo));
     router.push(`/room/${data.roomName}`);
   };
   return (
