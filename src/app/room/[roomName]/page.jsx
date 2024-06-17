@@ -14,12 +14,11 @@ const page = () => {
   const [roomInfo, setRoomInfo] = useState(
     JSON.parse(sessionStorage.getItem("roomInfo"))
   );
-
-  console.log(roomInfo, "roominfo");
   useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_API_URL);
     socketRef.current = socket;
 
+    console.log( JSON.parse(sessionStorage.getItem("currentUser")),'sdoifj')
     socket.on("connect", () => {
       //updating currentuser with their socket.id
       const localCurrentUser = JSON.parse(
@@ -28,7 +27,7 @@ const page = () => {
       if (!localCurrentUser.socketId) {
         setCurrentUser((prev) => ({ ...prev, socketId: socket.id }));
         let currentUser = {
-          userName: JSON.parse(sessionStorage.getItem("currentUser")),
+          currentUser: JSON.parse(sessionStorage.getItem("currentUser")),
           socketId: socket.id,
         };
         console.log(currentUser, "current");

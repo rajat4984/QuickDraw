@@ -1,18 +1,23 @@
 const mongoose = require("mongoose");
+const participantSchema = require("./Participant").schema;
 
 const RoomSchema = new mongoose.Schema({
   roomName: {
     type: String,
     unique: true,
-    require:true
+    required: true,
+  },
+  participantsArray: {
+    type: [participantSchema],
+    default: [],
   },
   roomPassword: {
     type: String,
-    require:true
+    required: true,
   },
   roomOwner: {
-    type: String,
-    require:true
+    type: Object,
+    required: true,
   },
 });
 

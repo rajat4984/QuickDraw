@@ -1,4 +1,5 @@
 const ChatRoom = require("../models/ChatRoom");
+const Room = require("../models/Room");
 
 const createChat = async (req, res) => {
   try {
@@ -18,16 +19,27 @@ const createChat = async (req, res) => {
   }
 };
 
-const deleteChat = (req, res) => {
-  console.log("Delete chat");
+const joinChat = async (req, res) => {
+  const { roomName, currentUser } = req.body;
+  const room = await Room.findOne({ roomName });
+  res.send(room)
 };
 
-const getChat = (req, res) => {
-  console.log("Get chat");
+const leaveChat = async (req, res) => {
+  const { roomName, currentUser } = req.body;
+
+  const chatRoom = await ChatRoom.findOne({ roomName });
+  const newChatRoom = chatRoom.participants.filter(()=>{
+
+  })
+};
+
+const deleteChat = (req, res) => {
+  console.log("Delete chat");
 };
 
 const updateChat = (req, res) => {
   console.log("Updated chat");
 };
 
-module.exports = { createChat, deleteChat, getChat, updateChat };
+module.exports = { createChat, deleteChat, joinChat, updateChat };

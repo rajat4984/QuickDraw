@@ -31,19 +31,26 @@ const JoinRoom = ({ setShowJoinForm }) => {
         formState
       );
 
+      console.log(data.room.participantsArray.slice(-1), "data");
+
       const localRoomInfo = {
         roomName: data.room.roomName,
-        roomOwner: data.room.roomOwner,
+        ownerDetails: [data.room.roomOwner],
       };
       console.log(localRoomInfo, "localRoomInfo");
 
       setRoomInfo({ ...localRoomInfo });
 
-      setCurrentUser({
-        currentUser: formState.userName,
-      });
+      let currentUserObj = {
+        currentUserName:
+        data.room.participantsArray.slice(-1)[0].userName,
+        currentUserId:
+        data.room.participantsArray.slice(-1)[0]._id,
+      };
+
+      setCurrentUser(currentUserObj);
       sessionStorage.setItem("roomInfo", JSON.stringify(localRoomInfo));
-      sessionStorage.setItem("currentUser", JSON.stringify(formState.userName));
+      sessionStorage.setItem("currentUser", JSON.stringify(currentUserObj));
       router.push(`/room/${data.room.roomName}`);
     } catch (error) {
       console.log(error);

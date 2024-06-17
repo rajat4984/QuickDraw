@@ -1,8 +1,8 @@
-const { getChat, createChat, updateChat, deleteChat } = require("../controllers/chatController");
+const { getChat, createChat, updateChat, deleteChat, joinChat } = require("../controllers/chatController");
 
 const router = require("express").Router();
 
-router.get("/getChat",getChat);
+router.post("/joinChat",joinChat)
 router.post("/createChat",createChat);
 router.put("/updateChat",updateChat);
 router.delete('/deleteChat',deleteChat);    

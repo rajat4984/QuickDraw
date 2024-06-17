@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const CreateRoom = ({ setShowJoinForm }) => {
-  const { setRoomInfo,setCurrentUser } = useGlobalContext();
+  const { setRoomInfo, setCurrentUser, currentUser } = useGlobalContext();
   const [name, setName] = useState("");
   const router = useRouter();
   const createRoomHandler = async (e) => {
@@ -20,15 +20,20 @@ const CreateRoom = ({ setShowJoinForm }) => {
 
     const localRoomInfo = {
       roomName: data.roomName,
-      roomOwner: data.roomOwner,
+      ownerDetails: [data.roomOwner],
     };
 
     setRoomInfo({ ...localRoomInfo });
     setCurrentUser({
-      currentUser:data.roomOwner,
-    })
+      currentUserName: data.roomOwner.ownerName,
+      currentUserId: data.roomOwner.ownerId,
+    });
+
     sessionStorage.setItem("roomInfo", JSON.stringify(localRoomInfo));
-    sessionStorage.setItem("currentUser", JSON.stringify(data.roomOwner));
+    sessionStorage.setItem("currentUser", JSON.stringify({
+      currentUserName: data.roomOwner.ownerName,
+      currentUserId: data.roomOwner.ownerId,
+    }));
 
     // create chatRoom
     const res = await axios.post(
