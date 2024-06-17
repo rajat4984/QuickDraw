@@ -28,6 +28,7 @@ const CreateRoom = ({ setShowJoinForm }) => {
       currentUser:data.roomOwner,
     })
     sessionStorage.setItem("roomInfo", JSON.stringify(localRoomInfo));
+    sessionStorage.setItem("currentUser", JSON.stringify(data.roomOwner));
 
     // create chatRoom
     const res = await axios.post(

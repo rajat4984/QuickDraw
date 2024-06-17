@@ -9,16 +9,32 @@ import { useGlobalContext } from "@/context";
 
 const page = () => {
   const [chatOpen, setChatOpen] = useState(false);
+  const { setCurrentUser, currentUser } = useGlobalContext();
   const socketRef = useRef();
   const [roomInfo, setRoomInfo] = useState(
     JSON.parse(sessionStorage.getItem("roomInfo"))
   );
 
   console.log(roomInfo, "roominfo");
-
   useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_API_URL);
     socketRef.current = socket;
+
+    socket.on("connect", () => {
+      //updating currentuser with their socket.id
+      const localCurrentUser = JSON.parse(
+        sessionStorage.getItem("currentUser")
+      );
+      if (!localCurrentUser.socketId) {
+        setCurrentUser((prev) => ({ ...prev, socketId: socket.id }));
+        let currentUser = {
+          userName: JSON.parse(sessionStorage.getItem("currentUser")),
+          socketId: socket.id,
+        };
+        console.log(currentUser, "current");
+        sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
+      }
+    });
 
     // const currentUser = sessionStorage.getItem(JSON.parse("currentUser"));
     // console.log(storedUser, "storedUser");
@@ -27,7 +43,7 @@ const page = () => {
     // socket.on("newUserConnected", (userData) => {
     //   if (!currentUser) {
     //     let currentUser = {
-    //       currentUserName : 
+    //       currentUserName :
     //     }
     //     sessionStorage.setItem("userName", userData.userName);
     //     sessionStorage.setItem("userId", userData.userId);
