@@ -5,15 +5,18 @@ const ChatRoomSchema = new mongoose.Schema({
     type: Array,
     required: true,
   },
+  roomOwner: {
+    type: String,
+    required: true,
+  },
   roomName: {
     type: String,
     required: true,
   },
-  chatRoom: {
-    type: Object,
+  chatRoomData: {
+    type: Array,
     required: true,
   },
 });
 
-
-module.exports = mongoose.model("Chat",ChatRoomSchema);
+module.exports = mongoose.model("Chat", ChatRoomSchema);

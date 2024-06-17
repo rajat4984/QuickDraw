@@ -5,24 +5,30 @@ import { MdCallEnd } from "react-icons/md";
 import { io } from "socket.io-client";
 import { FaRegUser } from "react-icons/fa";
 import { MdChat } from "react-icons/md";
+import { useGlobalContext } from "@/context";
 
 const page = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const socketRef = useRef();
-  const [roomInfo,setRoomInfo] = useState(JSON.parse(localStorage.getItem('roomInfo')));
+  const [roomInfo, setRoomInfo] = useState(
+    JSON.parse(sessionStorage.getItem("roomInfo"))
+  );
 
-  console.log(roomInfo,'roominfo')
+  console.log(roomInfo, "roominfo");
 
-  useEffect(()=>{
+  useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_API_URL);
     socketRef.current = socket;
 
-    const storedUser = sessionStorage.getItem('userName');
-    console.log(storedUser,'storedUser')
+    // const currentUser = sessionStorage.getItem(JSON.parse("currentUser"));
+    // console.log(storedUser, "storedUser");
 
     //events
     // socket.on("newUserConnected", (userData) => {
-    //   if (!sessionStorage.getItem("userId")) {
+    //   if (!currentUser) {
+    //     let currentUser = {
+    //       currentUserName : 
+    //     }
     //     sessionStorage.setItem("userName", userData.userName);
     //     sessionStorage.setItem("userId", userData.userId);
     //     setCurrentUserInfo({ ...userData });
@@ -34,7 +40,7 @@ const page = () => {
     //     });
     //   }
     // });
-  },[])
+  }, []);
   return (
     <div>
       <div className="flex flex-col justify-around m-2">
@@ -61,7 +67,9 @@ const page = () => {
                     <MdChat size={25} />
                   </div>
                 </div>
-                <p className="hidden md:block absolute top-[0]">{roomInfo?.roomOwner}</p>
+                <p className="hidden md:block absolute top-[0]">
+                  {roomInfo?.roomOwner}
+                </p>
               </div>
             </div>
 

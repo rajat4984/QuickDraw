@@ -1,5 +1,21 @@
-const createChat = (req, res) => {
-  console.log("create chat");
+const ChatRoom = require("../models/ChatRoom");
+
+const createChat = async (req, res) => {
+  try {
+    const { roomOwner, roomName } = req.body;
+    const newChat = new ChatRoom({
+      participants: [roomOwner],
+      roomOwner,
+      roomName,
+      chatRoomData: [],
+    });
+
+    await newChat.save();
+    res.status(200).json(newChat);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ message: "Internal Server error" });
+  }
 };
 
 const deleteChat = (req, res) => {

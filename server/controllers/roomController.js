@@ -46,6 +46,7 @@ const deleteRoom = async (req, res) => {
 };
 
 const joinRoom = async (req, res) => {
+  console.log(req.body)
   try {
     const { roomName, roomPassword } = req.body;
     const room = await Room.findOne({ roomName });
@@ -57,6 +58,7 @@ const joinRoom = async (req, res) => {
 
     return res.status(200).json({ message: "Room joined", room });
   } catch (error) {
+    console.log(error.message)
     res.status(500).json({ message: "Internal Server error" });
   }
 };

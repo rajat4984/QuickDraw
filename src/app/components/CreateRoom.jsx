@@ -1,22 +1,42 @@
+import { useGlobalContext } from "@/context";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const CreateRoom = ({ setShowJoinForm }) => {
+  const { setRoomInfo,setCurrentUser } = useGlobalContext();
   const [name, setName] = useState("");
   const router = useRouter();
   const createRoomHandler = async (e) => {
     e.preventDefault();
-    
-    const {data} = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/room/createRoom`, {
-      userName: name,
-    });
-    const roomInfo = {
-      roomName : data.roomName,
-      roomOwner : data.roomOwner
-    }
 
-    localStorage.setItem('roomInfo',JSON.stringify(roomInfo));
+    //create room
+    const { data } = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/room/createRoom`,
+      {
+        userName: name,
+      }
+    );
+
+    const localRoomInfo = {
+      roomName: data.roomName,
+      roomOwner: data.roomOwner,
+    };
+
+    setRoomInfo({ ...localRoomInfo });
+    setCurrentUser({
+      currentUser:data.roomOwner,
+    })
+    sessionStorage.setItem("roomInfo", JSON.stringify(localRoomInfo));
+
+    // create chatRoom
+    const res = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/chat/createChat`,
+      {
+        ...localRoomInfo,
+      }
+    );
+
     router.push(`/room/${data.roomName}`);
   };
   return (
