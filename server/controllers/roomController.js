@@ -8,7 +8,6 @@ const Room = require("../models/Room");
 const Participant = require("../models/Participant");
 
 const createRoom = async (req, res) => {
-  console.log(req.body.userName);
   try {
     const userName = req.body.userName;
     let roomName = uniqueNamesGenerator({
@@ -38,13 +37,27 @@ const createRoom = async (req, res) => {
   }
 };
 
+const leaveRoom = async (req, res) => {
+  const { participantId, roomName } = req.body;
+
+  // console.log(req.body)
+  const room = await Room.findOne({roomName});
+  const newArr = room.participantsArray.filter((item) => {
+    console.log(item._id, 'itemid');
+    console.log(participantId, 'participantId');
+    return item._id.toString() !== participantId;
+  });
+
+  console.log(newArr, "arr");
+};
+
 const deleteRoom = async (req, res) => {
   try {
-    const { roomName } = req.body;
+    const { roomName } = req.query;
 
+    console.log(req.query,'name')
     const room = await Room.findOneAndDelete({ roomName });
     if (!room) return res.status(404).json({ message: "Room not found" });
-
     return res.status(200).json({ message: "Room deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Internal Server error" });
@@ -54,7 +67,7 @@ const deleteRoom = async (req, res) => {
 const joinRoom = async (req, res) => {
   console.log(req.body);
   try {
-    const { roomName, roomPassword,userName } = req.body;
+    const { roomName, roomPassword, userName } = req.body;
     const room = await Room.findOne({ roomName });
 
     if (!room) return res.status(404).json({ message: "Room not found" });
@@ -62,12 +75,12 @@ const joinRoom = async (req, res) => {
     if (room.roomPassword !== roomPassword)
       return res.status(401).json({ message: "Wrong password" });
 
-     // Create a new participant
-     const newParticipant = new Participant({ userName });
-     console.log(newParticipant, "newParticipant");
+    // Create a new participant
+    const newParticipant = new Participant({ userName });
+    console.log(newParticipant, "newParticipant");
 
-     room.participantsArray.push(newParticipant);
-     await room.save();
+    room.participantsArray.push(newParticipant);
+    await room.save();
 
     return res.status(200).json({ message: "Room joined", room });
   } catch (error) {
@@ -76,4 +89,4 @@ const joinRoom = async (req, res) => {
   }
 };
 
-module.exports = { createRoom, deleteRoom, joinRoom };
+module.exports = { createRoom, deleteRoom, joinRoom,leaveRoom};

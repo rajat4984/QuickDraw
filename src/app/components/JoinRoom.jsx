@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { FaRegEyeSlash, FaRegEye } from "react-icons/fa";
 
 const JoinRoom = ({ setShowJoinForm }) => {
-  const { setRoomInfo, setCurrentUser } = useGlobalContext();
+  const { setRoomInfo, setCurrentUserInfo } = useGlobalContext();
   const [showPass, setShowPass] = useState(false);
   const router = useRouter();
 
@@ -48,7 +48,7 @@ const JoinRoom = ({ setShowJoinForm }) => {
         data.room.participantsArray.slice(-1)[0]._id,
       };
 
-      setCurrentUser(currentUserObj);
+      setCurrentUserInfo(currentUserObj);
       sessionStorage.setItem("roomInfo", JSON.stringify(localRoomInfo));
       sessionStorage.setItem("currentUser", JSON.stringify(currentUserObj));
       router.push(`/room/${data.room.roomName}`);

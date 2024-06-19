@@ -6,56 +6,78 @@ import { io } from "socket.io-client";
 import { FaRegUser } from "react-icons/fa";
 import { MdChat } from "react-icons/md";
 import { useGlobalContext } from "@/context";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const page = () => {
   const [chatOpen, setChatOpen] = useState(false);
-  const { setCurrentUser, currentUser } = useGlobalContext();
+  const { setCurrentUserInfo, setRoomInfo, currentUserInfo, roomInfo } =
+    useGlobalContext();
   const socketRef = useRef();
-  const [roomInfo, setRoomInfo] = useState(
-    JSON.parse(sessionStorage.getItem("roomInfo"))
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    const localRoomInfo = JSON.parse(sessionStorage.getItem("roomInfo"));
+    const localCurrentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+
+    if (localRoomInfo) {
+      setRoomInfo({ ...localRoomInfo });
+    }
+
+    if (localCurrentUser) {
+      setCurrentUserInfo({ ...localCurrentUser });
+    }
+  }, []);
+
   useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_API_URL);
     socketRef.current = socket;
 
-    console.log( JSON.parse(sessionStorage.getItem("currentUser")),'sdoifj')
     socket.on("connect", () => {
       //updating currentuser with their socket.id
       const localCurrentUser = JSON.parse(
         sessionStorage.getItem("currentUser")
       );
       if (!localCurrentUser.socketId) {
-        setCurrentUser((prev) => ({ ...prev, socketId: socket.id }));
+        setCurrentUserInfo((prev) => ({ ...prev, socketId: socket.id }));
         let currentUser = {
           currentUser: JSON.parse(sessionStorage.getItem("currentUser")),
           socketId: socket.id,
         };
-        console.log(currentUser, "current");
         sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
       }
     });
 
-    // const currentUser = sessionStorage.getItem(JSON.parse("currentUser"));
-    // console.log(storedUser, "storedUser");
-
-    //events
-    // socket.on("newUserConnected", (userData) => {
-    //   if (!currentUser) {
-    //     let currentUser = {
-    //       currentUserName :
-    //     }
-    //     sessionStorage.setItem("userName", userData.userName);
-    //     sessionStorage.setItem("userId", userData.userId);
-    //     setCurrentUserInfo({ ...userData });
-    //     socket.emit("userEnteredInChat",userData);
-    //   } else {
-    //     setCurrentUserInfo({
-    //       userName: sessionStorage.getItem("userName", userData.userName),
-    //       userId: sessionStorage.getItem("userId", userData.userId),
-    //     });
-    //   }
-    // });
+    socket.on("kickOut", () => {
+      router.push("/roomEnd");
+    });
   }, []);
+
+  const callEndHandler = async (e) => {
+    const { currentUserId } = currentUserInfo.currentUser;
+    const { ownerId } = roomInfo.ownerDetails[0];
+    const { roomName } = roomInfo;
+    if (currentUserId === ownerId) {
+      try {
+        console.log(roomName);
+        const res = await axios.delete(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/room/deleteRoom`,
+          { params: { roomName } }
+        );
+
+        socketRef.current.emit("deleteRoom");
+
+        router.push(`/joinRoom`);
+      } catch (error) {
+        console.log(error.message);
+      }
+    } else {
+      console.log("leave room");
+    }
+    // socketRef.current.emit("leaveRoom",currentUser.currentUserId);
+    // const res = axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/room/leaveRoom`,{participantId:currentUser.currentUserId,roomName:roomInfo.roomName});
+  };
+
   return (
     <div>
       <div className="flex flex-col justify-around m-2">
@@ -76,14 +98,19 @@ const page = () => {
                     <FaRegUser size={25} />
                   </div>
                   <div className="bg-red-600 p-2 rounded-full shadow-xl md:ml-4">
-                    <MdCallEnd size={25} className="text-white" />
+                    <MdCallEnd
+                      onClick={(e) => callEndHandler(e)}
+                      size={25}
+                      className="text-white"
+                    />
                   </div>
                   <div className="lg:hidden" onClick={() => setChatOpen(true)}>
                     <MdChat size={25} />
                   </div>
                 </div>
                 <p className="hidden md:block absolute top-[0]">
-                  {roomInfo?.roomOwner}
+                  {roomInfo?.ownerDetails &&
+                    roomInfo?.ownerDetails[0].ownerName}
                 </p>
               </div>
             </div>

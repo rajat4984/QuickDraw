@@ -5,9 +5,14 @@ const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [roomInfo, setRoomInfo] = useState({});
-  const [currentUser, setCurrentUser] = useState({});
+  const [currentUserInfo, setCurrentUserInfo] = useState({});
+
+  
+
   return (
-    <AppContext.Provider value={{ roomInfo, setRoomInfo,currentUser,setCurrentUser}}>
+    <AppContext.Provider
+      value={{ roomInfo, setRoomInfo, currentUserInfo, setCurrentUserInfo }}
+    >
       {children}
     </AppContext.Provider>
   );
