@@ -30,8 +30,10 @@ const createRoom = async (req, res) => {
     });
 
     await newRoom.save();
+    const roomData = newRoom.toObject();
+    delete roomData.roomPassword;
 
-    res.status(200).json(newRoom);
+    res.status(200).json(roomData);
   } catch (error) {
     res.status(500).json({ message: "Internal Server error" });
   }
@@ -39,23 +41,25 @@ const createRoom = async (req, res) => {
 
 const leaveRoom = async (req, res) => {
   const { participantId, roomName } = req.body;
-
   // console.log(req.body)
-  const room = await Room.findOne({roomName});
+  const room = await Room.findOne({ roomName });
   const newArr = room.participantsArray.filter((item) => {
-    console.log(item._id, 'itemid');
-    console.log(participantId, 'participantId');
+    console.log(item._id, "itemid");
+    console.log(participantId, "participantId");
     return item._id.toString() !== participantId;
   });
 
-  console.log(newArr, "arr");
+  room.participantsArray = newArr;
+  await room.save();
+
+  return res.status(200).json(room);
 };
 
 const deleteRoom = async (req, res) => {
   try {
     const { roomName } = req.query;
 
-    console.log(req.query,'name')
+    console.log(req.query, "name");
     const room = await Room.findOneAndDelete({ roomName });
     if (!room) return res.status(404).json({ message: "Room not found" });
     return res.status(200).json({ message: "Room deleted successfully" });
@@ -81,12 +85,14 @@ const joinRoom = async (req, res) => {
 
     room.participantsArray.push(newParticipant);
     await room.save();
+    const roomData = room.toObject();
+    delete roomData.roomPassword;
 
-    return res.status(200).json({ message: "Room joined", room });
+    return res.status(200).json(roomData);
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ message: "Internal Server error" });
   }
 };
 
-module.exports = { createRoom, deleteRoom, joinRoom,leaveRoom};
+module.exports = { createRoom, deleteRoom, joinRoom, leaveRoom };

@@ -18,6 +18,8 @@ const CreateRoom = ({ setShowJoinForm }) => {
       }
     );
 
+    // console.log(data,'data')
+
     const localRoomInfo = {
       roomName: data.roomName,
       ownerDetails: [data.roomOwner],
@@ -28,10 +30,10 @@ const CreateRoom = ({ setShowJoinForm }) => {
       currentUserId: data.roomOwner.ownerId,
     };
 
-    setRoomInfo({ ...localRoomInfo });
+    setRoomInfo({ ...data });
     setCurrentUserInfo(currentUserObj);
 
-    sessionStorage.setItem("roomInfo", JSON.stringify(localRoomInfo));
+    sessionStorage.setItem("roomInfo", JSON.stringify(data));
     sessionStorage.setItem("currentUser", JSON.stringify(currentUserObj));
 
     // create chatRoom

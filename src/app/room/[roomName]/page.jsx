@@ -41,7 +41,7 @@ const page = () => {
       if (!localCurrentUser.socketId) {
         setCurrentUserInfo((prev) => ({ ...prev, socketId: socket.id }));
         let currentUser = {
-          currentUser: JSON.parse(sessionStorage.getItem("currentUser")),
+          ...localCurrentUser,
           socketId: socket.id,
         };
         sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
@@ -54,13 +54,14 @@ const page = () => {
   }, []);
 
   const callEndHandler = async (e) => {
-    const { currentUserId } = currentUserInfo.currentUser;
-    const { ownerId } = roomInfo.ownerDetails[0];
+    console.log(currentUserInfo,'currentUserinfo')
+    const  currentUserId  = currentUserInfo.currentUserId;
+    const { ownerId } = roomInfo.roomOwner;
     const { roomName } = roomInfo;
     if (currentUserId === ownerId) {
       try {
         console.log(roomName);
-        const res = await axios.delete(
+          await axios.delete(
           `${process.env.NEXT_PUBLIC_API_URL}/api/room/deleteRoom`,
           { params: { roomName } }
         );
@@ -72,10 +73,13 @@ const page = () => {
         console.log(error.message);
       }
     } else {
-      console.log("leave room");
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/room/leaveRoom`,
+        { participantId: currentUserId, roomName }
+      );
+      console.log('data',res);
+      // setCurrentUserInfo({...})
     }
-    // socketRef.current.emit("leaveRoom",currentUser.currentUserId);
-    // const res = axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/room/leaveRoom`,{participantId:currentUser.currentUserId,roomName:roomInfo.roomName});
   };
 
   return (

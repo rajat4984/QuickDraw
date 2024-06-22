@@ -26,32 +26,23 @@ const JoinRoom = ({ setShowJoinForm }) => {
     e.preventDefault();
 
     try {
-      const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/room/joinRoom`,
+    const { data } = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/room/joinRoom`,
         formState
       );
-
-      console.log(data.room.participantsArray.slice(-1), "data");
-
-      const localRoomInfo = {
-        roomName: data.room.roomName,
-        ownerDetails: [data.room.roomOwner],
-      };
-      console.log(localRoomInfo, "localRoomInfo");
-
-      setRoomInfo({ ...localRoomInfo });
+      setRoomInfo({...data});
 
       let currentUserObj = {
         currentUserName:
-        data.room.participantsArray.slice(-1)[0].userName,
+        data.participantsArray.slice(-1)[0].userName,
         currentUserId:
-        data.room.participantsArray.slice(-1)[0]._id,
+        data.participantsArray.slice(-1)[0]._id,
       };
 
       setCurrentUserInfo(currentUserObj);
-      sessionStorage.setItem("roomInfo", JSON.stringify(localRoomInfo));
+      sessionStorage.setItem("roomInfo", JSON.stringify(data));
       sessionStorage.setItem("currentUser", JSON.stringify(currentUserObj));
-      router.push(`/room/${data.room.roomName}`);
+      router.push(`/room/${data.roomName}`);
     } catch (error) {
       console.log(error);
     }
