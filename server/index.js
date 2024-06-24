@@ -23,21 +23,25 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log(`${socket.id} is connected `);
 
-  socket.on("leaveRoom",(currentUserId)=>{
-    console.log(currentUserId)
-  })
+  socket.on("leaveRoom", (updatedRoomData) => {
+    console.log("Particiapnts upate server een")
+    socket.broadcast.emit("updateParticipants", updatedRoomData);
+    // console.log(updatedRoomData,'updatedRoomData');
+  });
 
-  socket.on('deleteRoom',()=>{
-    console.log("socketdelete")
+  socket.on("deleteRoom", () => {
+    console.log("socketdelete");
     socket.broadcast.emit("kickOut");
+  });
+
+  socket.on("participantJoined",(updatedRoomData)=>{
+    socket.broadcast.emit("notifyParticipantJoined",updatedRoomData)
   })
 
   socket.on("disconnect", () => {
     console.log("User disconnected");
     // console.log(`${socket.id} discconected`);
   });
-
-
 });
 
 app.use("/api/room", roomRouter);

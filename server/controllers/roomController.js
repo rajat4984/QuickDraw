@@ -51,8 +51,10 @@ const leaveRoom = async (req, res) => {
 
   room.participantsArray = newArr;
   await room.save();
+  const roomData = room.toObject();
+  delete roomData.roomPassword;
 
-  return res.status(200).json(room);
+  return res.status(200).json(roomData);
 };
 
 const deleteRoom = async (req, res) => {

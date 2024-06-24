@@ -8,12 +8,20 @@ import { MdChat } from "react-icons/md";
 import { useGlobalContext } from "@/context";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Participants from "@/app/components/Participants";
 
 const page = () => {
   const [chatOpen, setChatOpen] = useState(false);
-  const { setCurrentUserInfo, setRoomInfo, currentUserInfo, roomInfo } =
-    useGlobalContext();
-  const socketRef = useRef();
+  const [participantsOpen, setParticipantsOpen] = useState(false);
+  const {
+    setCurrentUserInfo,
+    setRoomInfo,
+    currentUserInfo,
+    roomInfo,
+    socketRef,
+    socketState,
+  } = useGlobalContext();
+
   const router = useRouter();
 
   useEffect(() => {
@@ -30,55 +38,71 @@ const page = () => {
   }, []);
 
   useEffect(() => {
-    const socket = io(process.env.NEXT_PUBLIC_API_URL);
-    socketRef.current = socket;
-
-    socket.on("connect", () => {
+    socketState?.on("connect", () => {
       //updating currentuser with their socket.id
       const localCurrentUser = JSON.parse(
         sessionStorage.getItem("currentUser")
       );
       if (!localCurrentUser.socketId) {
-        setCurrentUserInfo((prev) => ({ ...prev, socketId: socket.id }));
+        setCurrentUserInfo((prev) => ({ ...prev, socketId: socketState?.id }));
         let currentUser = {
           ...localCurrentUser,
-          socketId: socket.id,
+          socketId: socketState?.id,
         };
         sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
       }
     });
 
-    socket.on("kickOut", () => {
+    socketState?.on("kickOut", () => {
+      console.log("kickout on cliet");
       router.push("/roomEnd");
+    });
+
+    socketState?.on("notifyParticipantJoined", (updatedRoomData) => {
+      setRoomInfo({ ...updatedRoomData });
+
+      setTimeout(() => {
+        console.log(roomInfo, "roomInforoominfo");
+      }, 2000);
+    });
+
+    socketState?.on("updateParticipants", (updatedRoomData) => {
+      console.log("User left the chat ");
+      setCurrentUserInfo({ ...updatedRoomData });
+
+      setTimeout(() => {
+        console.log(roomInfo, "roomInfoInsfs ");
+      }, 2000);
     });
   }, []);
 
   const callEndHandler = async (e) => {
-    console.log(currentUserInfo,'currentUserinfo')
-    const  currentUserId  = currentUserInfo.currentUserId;
+    const currentUserId = currentUserInfo.currentUserId;
     const { ownerId } = roomInfo.roomOwner;
     const { roomName } = roomInfo;
     if (currentUserId === ownerId) {
+      console.log(currentUserId, ownerId, "ownerowner");
       try {
-        console.log(roomName);
-          await axios.delete(
+        await axios.delete(
           `${process.env.NEXT_PUBLIC_API_URL}/api/room/deleteRoom`,
           { params: { roomName } }
         );
-
-        socketRef.current.emit("deleteRoom");
-
+        socketState?.emit("deleteRoom");
+        sessionStorage.clear();
         router.push(`/joinRoom`);
       } catch (error) {
         console.log(error.message);
       }
     } else {
-      const res = await axios.post(
+      console.log("Helohelohelo");
+      const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/room/leaveRoom`,
         { participantId: currentUserId, roomName }
       );
-      console.log('data',res);
-      // setCurrentUserInfo({...})
+      setRoomInfo({ ...data });
+      socketState?.emit("leaveRoom", data);
+      sessionStorage.clear();
+      router.push(`/joinRoom`);
     }
   };
 
@@ -94,12 +118,19 @@ const page = () => {
           <div className="mx-3 flex items-center">
             {/* //WHITEBOARD */}
             <div>
-              <canvas id="myCanvas" className="rounded mt-3"></canvas>
+              {/* ----------CANVAS------------- */}
+              <div className="relative">
+                {participantsOpen && <Participants />}
 
+                <canvas id="myCanvas" className="rounded mt-3"></canvas>
+              </div>
               <div className="relative">
                 <div className="flex justify-evenly items-center mt-5 mx-8 md:justify-center">
                   <div>
-                    <FaRegUser size={25} />
+                    <FaRegUser
+                      onClick={() => setParticipantsOpen(!participantsOpen)}
+                      size={25}
+                    />
                   </div>
                   <div className="bg-red-600 p-2 rounded-full shadow-xl md:ml-4">
                     <MdCallEnd
