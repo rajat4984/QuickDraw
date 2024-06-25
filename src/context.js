@@ -9,7 +9,6 @@ export const AppProvider = ({ children }) => {
   const [currentUserInfo, setCurrentUserInfo] = useState({});
   const [socketState ,setSocketState] = useState(null);
   const socketRef = useRef();
-
   
   useEffect(()=>{
     const socket = io(process.env.NEXT_PUBLIC_API_URL);
@@ -18,9 +17,6 @@ export const AppProvider = ({ children }) => {
       setSocketState(socket);
     }
   })
-
-  console.log(socketState,'socketrefincontext')
-
 
   return (
     <AppContext.Provider

@@ -18,7 +18,6 @@ const page = () => {
     setRoomInfo,
     currentUserInfo,
     roomInfo,
-    socketRef,
     socketState,
   } = useGlobalContext();
 
@@ -39,7 +38,6 @@ const page = () => {
 
   useEffect(() => {
     socketState?.on("connect", () => {
-      //updating currentuser with their socket.id
       const localCurrentUser = JSON.parse(
         sessionStorage.getItem("currentUser")
       );
@@ -54,25 +52,23 @@ const page = () => {
     });
 
     socketState?.on("kickOut", () => {
-      console.log("kickout on cliet");
       router.push("/roomEnd");
     });
 
     socketState?.on("notifyParticipantJoined", (updatedRoomData) => {
       setRoomInfo({ ...updatedRoomData });
-
-      setTimeout(() => {
-        console.log(roomInfo, "roomInforoominfo");
-      }, 2000);
+      sessionStorage.setItem(
+        "roomInfo",
+        JSON.stringify({ ...updatedRoomData })
+      );
     });
 
     socketState?.on("updateParticipants", (updatedRoomData) => {
-      console.log("User left the chat ");
-      setCurrentUserInfo({ ...updatedRoomData });
-
-      setTimeout(() => {
-        console.log(roomInfo, "roomInfoInsfs ");
-      }, 2000);
+      setRoomInfo({ ...updatedRoomData });
+      sessionStorage.setItem(
+        "roomInfo",
+        JSON.stringify({ ...updatedRoomData })
+      );
     });
   }, []);
 
@@ -81,29 +77,26 @@ const page = () => {
     const { ownerId } = roomInfo.roomOwner;
     const { roomName } = roomInfo;
     if (currentUserId === ownerId) {
-      console.log(currentUserId, ownerId, "ownerowner");
       try {
         await axios.delete(
           `${process.env.NEXT_PUBLIC_API_URL}/api/room/deleteRoom`,
           { params: { roomName } }
         );
         socketState?.emit("deleteRoom");
-        sessionStorage.clear();
-        router.push(`/joinRoom`);
       } catch (error) {
         console.log(error.message);
       }
     } else {
-      console.log("Helohelohelo");
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/room/leaveRoom`,
         { participantId: currentUserId, roomName }
       );
-      setRoomInfo({ ...data });
+
       socketState?.emit("leaveRoom", data);
-      sessionStorage.clear();
-      router.push(`/joinRoom`);
     }
+    socketState.disconnect();
+    sessionStorage.clear();
+    router.push(`/joinRoom`);
   };
 
   return (

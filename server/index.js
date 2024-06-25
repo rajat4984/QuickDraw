@@ -24,9 +24,8 @@ io.on("connection", (socket) => {
   console.log(`${socket.id} is connected `);
 
   socket.on("leaveRoom", (updatedRoomData) => {
-    console.log("Particiapnts upate server een")
+    console.log(updatedRoomData,'leaveRoom');
     socket.broadcast.emit("updateParticipants", updatedRoomData);
-    // console.log(updatedRoomData,'updatedRoomData');
   });
 
   socket.on("deleteRoom", () => {

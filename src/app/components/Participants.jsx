@@ -5,7 +5,6 @@ import { IoMdRemoveCircleOutline } from "react-icons/io";
 
 const Participants = () => {
   const { roomInfo } = useGlobalContext();
-  console.log(roomInfo, "roomIfno");
   return (
     <div className="w-[90vw] h-[80vh] shadow-2xl p-5 absolute top-0">
       {roomInfo?.participantsArray?.map((item) => (
