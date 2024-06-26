@@ -37,12 +37,12 @@ const CreateRoom = ({ setShowJoinForm }) => {
     sessionStorage.setItem("currentUser", JSON.stringify(currentUserObj));
 
     // create chatRoom
-    const res = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/chat/createChat`,
-      {
-        ...localRoomInfo,
-      }
-    );
+    // const res = await axios.post(
+    //   `${process.env.NEXT_PUBLIC_API_URL}/api/chat/createChat`,
+    //   {
+    //     ...localRoomInfo,
+    //   }
+    // );
 
     router.push(`/room/${data.roomName}`);
   };

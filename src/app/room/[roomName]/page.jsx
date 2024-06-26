@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Chat from "./../../components/Chat";
 import { MdCallEnd } from "react-icons/md";
-import { io } from "socket.io-client";
 import { FaRegUser } from "react-icons/fa";
 import { MdChat } from "react-icons/md";
 import { useGlobalContext } from "@/context";
@@ -37,40 +36,42 @@ const page = () => {
   }, []);
 
   useEffect(() => {
-    socketState?.on("connect", () => {
-      const localCurrentUser = JSON.parse(
-        sessionStorage.getItem("currentUser")
-      );
+    const handleConnect = () => {
+      const localCurrentUser = JSON.parse(sessionStorage.getItem("currentUser"));
       if (!localCurrentUser.socketId) {
         setCurrentUserInfo((prev) => ({ ...prev, socketId: socketState?.id }));
-        let currentUser = {
-          ...localCurrentUser,
-          socketId: socketState?.id,
-        };
+        let currentUser = { ...localCurrentUser, socketId: socketState?.id };
         sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
       }
-    });
-
-    socketState?.on("kickOut", () => {
+    };
+  
+    const handleKickOut = () => {
       router.push("/roomEnd");
-    });
-
-    socketState?.on("notifyParticipantJoined", (updatedRoomData) => {
+    };
+  
+    const handleNotifyParticipantJoined = (updatedRoomData) => {
+      console.log("notifyParticipantJoined", updatedRoomData);
       setRoomInfo({ ...updatedRoomData });
-      sessionStorage.setItem(
-        "roomInfo",
-        JSON.stringify({ ...updatedRoomData })
-      );
-    });
-
-    socketState?.on("updateParticipants", (updatedRoomData) => {
+      sessionStorage.setItem("roomInfo", JSON.stringify({ ...updatedRoomData }));
+    };
+  
+    const handleUpdateParticipants = (updatedRoomData) => {
       setRoomInfo({ ...updatedRoomData });
-      sessionStorage.setItem(
-        "roomInfo",
-        JSON.stringify({ ...updatedRoomData })
-      );
-    });
-  }, []);
+      sessionStorage.setItem("roomInfo", JSON.stringify({ ...updatedRoomData }));
+    };
+  
+    socketState?.on("connect", handleConnect);
+    socketState?.on("kickOut", handleKickOut);
+    socketState?.on("notifyParticipantJoined", handleNotifyParticipantJoined);
+    socketState?.on("updateParticipants", handleUpdateParticipants);
+  
+    return () => {
+      socketState?.off("connect", handleConnect);
+      socketState?.off("kickOut", handleKickOut);
+      socketState?.off("notifyParticipantJoined", handleNotifyParticipantJoined);
+      socketState?.off("updateParticipants", handleUpdateParticipants);
+    };
+  }, [socketState]);
 
   const callEndHandler = async (e) => {
     const currentUserId = currentUserInfo.currentUserId;
@@ -91,11 +92,12 @@ const page = () => {
         `${process.env.NEXT_PUBLIC_API_URL}/api/room/leaveRoom`,
         { participantId: currentUserId, roomName }
       );
-
       socketState?.emit("leaveRoom", data);
     }
-    socketState.disconnect();
+    socketState?.disconnect();
     sessionStorage.clear();
+    setRoomInfo({});
+    setCurrentUserInfo({});
     router.push(`/joinRoom`);
   };
 

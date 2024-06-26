@@ -11,6 +11,10 @@ const RoomSchema = new mongoose.Schema({
     type: [participantSchema],
     default: [],
   },
+  chatRoomData: {
+    type: Array,
+    default: [],
+  },
   roomPassword: {
     type: String,
     required: true,

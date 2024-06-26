@@ -39,7 +39,7 @@ const deleteChat = (req, res) => {
 };
 
 const updateChat = (req, res) => {
-  console.log("Updated chat");
+  
 };
 
 module.exports = { createChat, deleteChat, joinChat, updateChat };

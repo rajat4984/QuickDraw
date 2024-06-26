@@ -71,7 +71,6 @@ const deleteRoom = async (req, res) => {
 };
 
 const joinRoom = async (req, res) => {
-  console.log(req.body);
   try {
     const { roomName, roomPassword, userName } = req.body;
     const room = await Room.findOne({ roomName });
@@ -97,4 +96,27 @@ const joinRoom = async (req, res) => {
   }
 };
 
-module.exports = { createRoom, deleteRoom, joinRoom, leaveRoom };
+const updateChat = async (req, res) => {
+  try {
+    const { roomName, message, senderId, senderName } = req.body;
+    const room = await Room.findOne({ roomName });
+    if (!room) return res.status(404).json({ message: "Room not found" });
+
+    const messageObj = {
+      message,
+      senderId,
+      senderName,
+      timeStamp: new Date(),
+    };
+
+    room.chatRoomData.push(messageObj);
+
+    room.save();
+
+    return res.status(200).json(room);
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server error" });
+  }
+};
+
+module.exports = { createRoom, deleteRoom, joinRoom, leaveRoom, updateChat };

@@ -24,18 +24,24 @@ io.on("connection", (socket) => {
   console.log(`${socket.id} is connected `);
 
   socket.on("leaveRoom", (updatedRoomData) => {
-    console.log(updatedRoomData,'leaveRoom');
+    console.log(updatedRoomData, "leaveRoom");
     socket.broadcast.emit("updateParticipants", updatedRoomData);
   });
 
+  socket.on("broadCast", (data) => {
+    socket.broadcast.emit(data.emitName, {
+      id: socket.id,
+      payload: data.payload,
+    });
+  });
+
   socket.on("deleteRoom", () => {
-    console.log("socketdelete");
     socket.broadcast.emit("kickOut");
   });
 
-  socket.on("participantJoined",(updatedRoomData)=>{
-    socket.broadcast.emit("notifyParticipantJoined",updatedRoomData)
-  })
+  socket.on("participantJoined", (updatedRoomData) => {
+    socket.broadcast.emit("notifyParticipantJoined", updatedRoomData);
+  });
 
   socket.on("disconnect", () => {
     console.log("User disconnected");

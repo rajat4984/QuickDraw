@@ -1,10 +1,11 @@
 import { useGlobalContext } from "@/context";
 import React from "react";
 import { FaRegUser } from "react-icons/fa";
-import { IoMdRemoveCircleOutline } from "react-icons/io";
+// import { IoMdRemoveCircleOutline } from "react-icons/io";
 
 const Participants = () => {
   const { roomInfo } = useGlobalContext();
+
   return (
     <div className="w-[90vw] h-[80vh] shadow-2xl p-5 absolute top-0">
       {roomInfo?.participantsArray?.map((item) => (
@@ -16,7 +17,7 @@ const Participants = () => {
             <FaRegUser size={35} className="p-2" />
             <p>{item.userName}</p>
           </div>
-          <IoMdRemoveCircleOutline size={35} className="p-2" />
+          {/* <IoMdRemoveCircleOutline onClick={()=>handleKickOut()} size={35} className="p-2" /> */}
         </div>
       ))}
     </div>
