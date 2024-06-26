@@ -39,9 +39,6 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("kickOut");
   });
 
-  socket.on("participantJoined", (updatedRoomData) => {
-    socket.broadcast.emit("notifyParticipantJoined", updatedRoomData);
-  });
 
   socket.on("disconnect", () => {
     console.log("User disconnected");

@@ -39,7 +39,10 @@ const JoinRoom = ({ setShowJoinForm }) => {
       };
 
       setCurrentUserInfo(currentUserObj);
-      socketState.emit("participantJoined",data);
+      socketState?.emit("broadCast", {
+        emitName: "updateParticipants",
+        payload: data,
+      });
       sessionStorage.setItem("roomInfo", JSON.stringify(data));
       sessionStorage.setItem("currentUser", JSON.stringify(currentUserObj));
       router.push(`/room/${data.roomName}`);

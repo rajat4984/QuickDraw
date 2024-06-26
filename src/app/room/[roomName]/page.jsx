@@ -37,38 +37,36 @@ const page = () => {
 
   useEffect(() => {
     const handleConnect = () => {
-      const localCurrentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+      const localCurrentUser = JSON.parse(
+        sessionStorage.getItem("currentUser")
+      );
       if (!localCurrentUser.socketId) {
         setCurrentUserInfo((prev) => ({ ...prev, socketId: socketState?.id }));
         let currentUser = { ...localCurrentUser, socketId: socketState?.id };
         sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
       }
     };
-  
+
     const handleKickOut = () => {
       router.push("/roomEnd");
     };
-  
-    const handleNotifyParticipantJoined = (updatedRoomData) => {
-      console.log("notifyParticipantJoined", updatedRoomData);
-      setRoomInfo({ ...updatedRoomData });
-      sessionStorage.setItem("roomInfo", JSON.stringify({ ...updatedRoomData }));
-    };
-  
+
     const handleUpdateParticipants = (updatedRoomData) => {
-      setRoomInfo({ ...updatedRoomData });
-      sessionStorage.setItem("roomInfo", JSON.stringify({ ...updatedRoomData }));
+      console.log("HandleUpdaed",updatedRoomData)
+      setRoomInfo({ ...updatedRoomData.payload });
+      sessionStorage.setItem(
+        "roomInfo",
+        JSON.stringify({ ...updatedRoomData.payload})
+      );
     };
-  
+
     socketState?.on("connect", handleConnect);
     socketState?.on("kickOut", handleKickOut);
-    socketState?.on("notifyParticipantJoined", handleNotifyParticipantJoined);
     socketState?.on("updateParticipants", handleUpdateParticipants);
-  
+
     return () => {
       socketState?.off("connect", handleConnect);
       socketState?.off("kickOut", handleKickOut);
-      socketState?.off("notifyParticipantJoined", handleNotifyParticipantJoined);
       socketState?.off("updateParticipants", handleUpdateParticipants);
     };
   }, [socketState]);
@@ -83,7 +81,10 @@ const page = () => {
           `${process.env.NEXT_PUBLIC_API_URL}/api/room/deleteRoom`,
           { params: { roomName } }
         );
-        socketState?.emit("deleteRoom");
+        socketState?.emit("broadCast", {
+          emitName: "kickOut",
+          payload: data,
+        });
       } catch (error) {
         console.log(error.message);
       }
@@ -92,7 +93,12 @@ const page = () => {
         `${process.env.NEXT_PUBLIC_API_URL}/api/room/leaveRoom`,
         { participantId: currentUserId, roomName }
       );
-      socketState?.emit("leaveRoom", data);
+
+      socketState?.emit("broadCast", {
+        emitName: "updateParticipants",
+        payload: data,
+      });
+      // socketState?.emit("updateParticipants", data);
     }
     socketState?.disconnect();
     sessionStorage.clear();

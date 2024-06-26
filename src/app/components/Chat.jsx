@@ -14,7 +14,6 @@ const [messageVal, setMessageVal] = useState("");
 
   useEffect(() => {
     socketState?.on("messageReceived", ({ payload }) => {
-      console.log(payload, "payload");
       setRoomInfo({ ...payload });
       sessionStorage.setItem("roomInfo", JSON.stringify({ ...payload }));
     });
