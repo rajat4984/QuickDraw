@@ -8,6 +8,8 @@ import { useGlobalContext } from "@/context";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Participants from "@/app/components/Participants";
+import toast, { Toaster } from "react-hot-toast";
+import Canvas from "@/app/components/Canvas";
 
 const page = () => {
   const [chatOpen, setChatOpen] = useState(false);
@@ -52,11 +54,12 @@ const page = () => {
     };
 
     const handleUpdateParticipants = (updatedRoomData) => {
-      console.log("HandleUpdaed",updatedRoomData)
-      setRoomInfo({ ...updatedRoomData.payload });
+      console.log(updatedRoomData, "updatedRoom");
+      toast.success(updatedRoomData.payload.notification);
+      setRoomInfo({ ...updatedRoomData.payload.data });
       sessionStorage.setItem(
         "roomInfo",
-        JSON.stringify({ ...updatedRoomData.payload})
+        JSON.stringify({ ...updatedRoomData.payload })
       );
     };
 
@@ -96,7 +99,8 @@ const page = () => {
 
       socketState?.emit("broadCast", {
         emitName: "updateParticipants",
-        payload: data,
+        data,
+        notification: `${currentUserInfo?.currentUserName} left the room`,
       });
       // socketState?.emit("updateParticipants", data);
     }
@@ -109,6 +113,7 @@ const page = () => {
 
   return (
     <div>
+      <Toaster />
       <div className="flex flex-col justify-around m-2">
         {chatOpen ? (
           <>
@@ -123,7 +128,7 @@ const page = () => {
               <div className="relative">
                 {participantsOpen && <Participants />}
 
-                <canvas id="myCanvas" className="rounded mt-3"></canvas>
+                <Canvas style={{ height: "80vh", width: "80vh" }} />
               </div>
               <div className="relative">
                 <div className="flex justify-evenly items-center mt-5 mx-8 md:justify-center">

@@ -31,7 +31,7 @@ io.on("connection", (socket) => {
   socket.on("broadCast", (data) => {
     socket.broadcast.emit(data.emitName, {
       id: socket.id,
-      payload: data.payload,
+      payload: data,
     });
   });
 

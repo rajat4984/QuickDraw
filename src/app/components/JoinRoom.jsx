@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { FaRegEyeSlash, FaRegEye } from "react-icons/fa";
 
 const JoinRoom = ({ setShowJoinForm }) => {
-  const { setRoomInfo, setCurrentUserInfo,socketState } = useGlobalContext();
+  const { setRoomInfo, setCurrentUserInfo, socketState, currentUserInfo } =
+    useGlobalContext();
   const [showPass, setShowPass] = useState(false);
   const router = useRouter();
   const [formState, setFormState] = useState({
@@ -25,23 +26,22 @@ const JoinRoom = ({ setShowJoinForm }) => {
     e.preventDefault();
 
     try {
-    const { data } = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/room/joinRoom`,
+      const { data } = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/room/joinRoom`,
         formState
       );
-      setRoomInfo({...data});
+      setRoomInfo({ ...data });
 
       let currentUserObj = {
-        currentUserName:
-        data.participantsArray.slice(-1)[0].userName,
-        currentUserId:
-        data.participantsArray.slice(-1)[0]._id,
+        currentUserName: data.participantsArray.slice(-1)[0].userName,
+        currentUserId: data.participantsArray.slice(-1)[0]._id,
       };
 
       setCurrentUserInfo(currentUserObj);
       socketState?.emit("broadCast", {
         emitName: "updateParticipants",
-        payload: data,
+        data,
+        notification: `${currentUserObj.currentUserName} joined the room`,
       });
       sessionStorage.setItem("roomInfo", JSON.stringify(data));
       sessionStorage.setItem("currentUser", JSON.stringify(currentUserObj));
