@@ -23,6 +23,10 @@ const RoomSchema = new mongoose.Schema({
     type: Object,
     required: true,
   },
+  canvasImg: {
+    type: String,
+    default: "",
+  },
 });
 
 module.exports = mongoose.model("Room", RoomSchema);

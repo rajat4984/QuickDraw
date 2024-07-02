@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import Participants from "@/app/components/Participants";
 import toast, { Toaster } from "react-hot-toast";
 import Canvas from "@/app/components/Canvas";
+import UserCanvas from "@/app/components/UserCanvas";
 
 const page = () => {
   const [chatOpen, setChatOpen] = useState(false);
@@ -54,15 +55,13 @@ const page = () => {
     };
 
     const handleUpdateParticipants = (updatedRoomData) => {
-      console.log(updatedRoomData, "updatedRoom");
       toast.success(updatedRoomData.payload.notification);
       setRoomInfo({ ...updatedRoomData.payload.data });
       sessionStorage.setItem(
         "roomInfo",
-        JSON.stringify({ ...updatedRoomData.payload })
+        JSON.stringify({ ...updatedRoomData.payload.data })
       );
     };
-
     socketState?.on("connect", handleConnect);
     socketState?.on("kickOut", handleKickOut);
     socketState?.on("updateParticipants", handleUpdateParticipants);
@@ -102,7 +101,6 @@ const page = () => {
         data,
         notification: `${currentUserInfo?.currentUserName} left the room`,
       });
-      // socketState?.emit("updateParticipants", data);
     }
     socketState?.disconnect();
     sessionStorage.clear();
@@ -128,7 +126,12 @@ const page = () => {
               <div className="relative">
                 {participantsOpen && <Participants />}
 
-                <Canvas style={{ height: "80vh", width: "80vh" }} />
+                {roomInfo?.roomOwner?.ownerId ===
+                currentUserInfo?.currentUserId ? (
+                  <Canvas />
+                ) : (
+                  <UserCanvas />
+                )}
               </div>
               <div className="relative">
                 <div className="flex justify-evenly items-center mt-5 mx-8 md:justify-center">

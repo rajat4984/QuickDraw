@@ -32,6 +32,8 @@ const JoinRoom = ({ setShowJoinForm }) => {
       );
       setRoomInfo({ ...data });
 
+      sessionStorage.setItem("canvasImg", JSON.stringify(data?.canvasImg));
+
       let currentUserObj = {
         currentUserName: data.participantsArray.slice(-1)[0].userName,
         currentUserId: data.participantsArray.slice(-1)[0]._id,

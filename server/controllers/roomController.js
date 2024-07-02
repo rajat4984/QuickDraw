@@ -119,4 +119,23 @@ const updateChat = async (req, res) => {
   }
 };
 
-module.exports = { createRoom, deleteRoom, joinRoom, leaveRoom, updateChat };
+const updateCanvas = async (req, res) => {
+  const { canvasImg, roomName } = req.body;
+  const room = await Room.findOne({ roomName });
+  if (!room) return res.status(404).json({ message: "Room not found" });
+
+  room.canvasImg = canvasImg;
+
+  await room.save();
+
+  res.status(200).json(room);
+};
+
+module.exports = {
+  createRoom,
+  deleteRoom,
+  joinRoom,
+  leaveRoom,
+  updateChat,
+  updateCanvas,
+};

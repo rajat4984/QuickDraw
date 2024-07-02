@@ -21,7 +21,7 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log(`${socket.id} is connected `);
+  // console.log(`${socket.id} is connected `);
 
   socket.on("leaveRoom", (updatedRoomData) => {
     console.log(updatedRoomData, "leaveRoom");
@@ -29,6 +29,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("broadCast", (data) => {
+    console.log(data,'userCanvasData')
     socket.broadcast.emit(data.emitName, {
       id: socket.id,
       payload: data,
@@ -39,9 +40,8 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("kickOut");
   });
 
-
   socket.on("disconnect", () => {
-    console.log("User disconnected");
+    // console.log("User disconnected");
     // console.log(`${socket.id} discconected`);
   });
 });
