@@ -1,6 +1,5 @@
 const express = require("express");
 const roomRouter = require("./routes/roomRouter");
-const chatRouter = require("./routes/chatRouter");
 const mongoose = require("mongoose");
 const http = require("http");
 const cors = require("cors");
@@ -11,7 +10,8 @@ const PORT = 5000;
 const { Server } = require("socket.io");
 
 require("dotenv").config();
-app.use(express.json());
+app.use(express.json({ limit: "50mb" })); // Adjust the limit as needed
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cors());
 
 const io = new Server(server, {
@@ -24,12 +24,10 @@ io.on("connection", (socket) => {
   // console.log(`${socket.id} is connected `);
 
   socket.on("leaveRoom", (updatedRoomData) => {
-    console.log(updatedRoomData, "leaveRoom");
     socket.broadcast.emit("updateParticipants", updatedRoomData);
   });
 
   socket.on("broadCast", (data) => {
-    console.log(data,'userCanvasData')
     socket.broadcast.emit(data.emitName, {
       id: socket.id,
       payload: data,
@@ -40,14 +38,10 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("kickOut");
   });
 
-  socket.on("disconnect", () => {
-    // console.log("User disconnected");
-    // console.log(`${socket.id} discconected`);
-  });
+  socket.on("disconnect", () => {});
 });
 
 app.use("/api/room", roomRouter);
-app.use("/api/chat", chatRouter);
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
   server.listen(PORT, () => {

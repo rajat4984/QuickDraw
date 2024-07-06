@@ -3,10 +3,12 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 
 const Canvas = () => {
-  const { socketState, roomInfo } = useGlobalContext();
+  const { socketState, roomInfo, isPen } = useGlobalContext();
   const canvasRef = useRef();
   const [canvasCtx, setCanvasCtx] = useState();
   const [isDrawing, setIsDrawing] = useState(false);
+  const [lastPostTime, setLastPostTime] = useState(0);
+  const eraserRadius = 8;
 
   useEffect(() => {
     const localCanvasImg = JSON.parse(sessionStorage.getItem("canvasImg"));
@@ -42,70 +44,84 @@ const Canvas = () => {
     let x, y;
 
     if (e.touches && e.touches.length > 0) {
-      x = e.touches[0].clientX - canvas.offsetLeft;
-      y = e.touches[0].clientY - canvas.offsetTop;
+      x = e.touches[0].clientX - canvas.offsetLeft - 20;
+      y = e.touches[0].clientY - canvas.offsetTop - 20;
     } else {
-      x = e.clientX - canvas.offsetLeft;
-      y = e.clientY - canvas.offsetTop;
+      x = e.clientX - canvas.offsetLeft - 20;
+      y = e.clientY - canvas.offsetTop - 20;
     }
 
     return { x, y };
   };
 
   const start = (e) => {
-    const canvas = canvasRef.current;
-    setIsDrawing(true);
-
     const { x, y } = getCoords(e);
+    setIsDrawing(true);
     canvasCtx.beginPath();
-    canvasCtx.moveTo(x - canvas.offsetLeft, y - canvas.offsetTop);
-    e.preventDefault();
+    canvasCtx.moveTo(x, y);
+    // e.preventDefault();
   };
 
   const draw = (e) => {
-    const canvas = canvasRef.current;
-    const { x, y } = getCoords(e);
-    if (isDrawing) {
-      canvasCtx.lineTo(x - canvas.offsetLeft, y - canvas.offsetTop);
-      canvasCtx.lineJoin = "round";
-      canvasCtx.stroke();
-      socketState.emit("demo");
-      socketState?.emit("broadCast", {
-        emitName: "draw",
-        data: canvas.toDataURL(),
-      });
+    if (!isDrawing) return;
 
-      sessionStorage.setItem("canvasImg", JSON.stringify(canvas.toDataURL()));
+    const canvas = canvasRef.current
+
+    const { x, y } = getCoords(e);
+    if (isPen) {
+      canvasCtx.globalCompositeOperation = "source-over";
+      canvasCtx.lineTo(x, y);
+      canvasCtx.stroke();
+    } else {
+      canvasCtx.globalCompositeOperation = "destination-out";
+      canvasCtx.lineTo(x, y);
+      canvasCtx.strokeStyle = "rgba(0,0,0,1)"; // Adjust as needed
+      canvasCtx.lineWidth = eraserRadius * 3;
+      canvasCtx.stroke();
+      canvasCtx.strokeStyle = "black"; // Reset to pen color
+      canvasCtx.lineWidth = 2;
+      console.log("Eraser");
     }
+
+    socketState?.emit("broadCast", {
+      emitName: "draw",
+      data: canvas.toDataURL(),
+    });
+
+    sessionStorage.setItem(
+      "canvasImg",
+      JSON.stringify(canvasRef.current.toDataURL())
+    );
     e.preventDefault();
   };
 
   const stop = (e) => {
-    const canvas = canvasRef.current;
-    if (isDrawing) {
-      canvasCtx.stroke();
-      canvasCtx.closePath();
-      setIsDrawing(false);
+    if (!isDrawing) return;
 
+    canvasCtx.closePath();
+    setIsDrawing(false);
+
+    const currentTime = Date.now();
+    if (currentTime - lastPostTime >= 3000) {
+      setLastPostTime(currentTime);
       axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/room/updateCanvas`, {
         roomName: roomInfo.roomName,
-        canvasImg: canvas.toDataURL(),
+        canvasImg: canvasRef.current.toDataURL(),
       });
     }
-
     e.preventDefault();
   };
 
   return (
     <div>
       <canvas
-        onMouseDown={(e) => start(e)}
-        onMouseMove={(e) => draw(e)}
-        onTouchStart={(e) => start(e)}
-        onTouchMove={(e) => draw(e)}
-        onTouchEnd={(e) => stop(e)}
-        onMouseOut={(e) => stop(e)}
-        onMouseUp={(e) => stop(e)}
+        onMouseDown={start}
+        onMouseMove={draw}
+        onMouseUp={stop}
+        onMouseOut={stop}
+        onTouchStart={start}
+        onTouchMove={draw}
+        onTouchEnd={stop}
         ref={canvasRef}
         id="myCanvas"
         className="rounded mt-3 object-contain"

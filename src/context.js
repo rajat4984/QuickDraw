@@ -6,17 +6,18 @@ const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [roomInfo, setRoomInfo] = useState({});
+  const [isPen, setIsPen] = useState(true);
   const [currentUserInfo, setCurrentUserInfo] = useState({});
-  const [socketState ,setSocketState] = useState(null);
+  const [socketState, setSocketState] = useState(null);
   const socketRef = useRef();
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_API_URL);
-    if(!socketRef.current){
+    if (!socketRef.current) {
       socketRef.current = socket;
       setSocketState(socket);
     }
-  })
+  });
 
   return (
     <AppContext.Provider
@@ -27,6 +28,8 @@ export const AppProvider = ({ children }) => {
         setCurrentUserInfo,
         socketRef,
         socketState,
+        isPen,
+        setIsPen,
       }}
     >
       {children}

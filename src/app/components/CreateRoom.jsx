@@ -1,15 +1,19 @@
 import { useGlobalContext } from "@/context";
+import { CircularProgress } from "@mui/material";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const CreateRoom = ({ setShowJoinForm }) => {
-  const { setRoomInfo, setCurrentUserInfo, currentUserInfo } = useGlobalContext();
+  const { setRoomInfo, setCurrentUserInfo } = useGlobalContext();
+  const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
   const router = useRouter();
+
   const createRoomHandler = async (e) => {
     e.preventDefault();
 
+    setIsLoading(true);
     //create room
     const { data } = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/api/room/createRoom`,
@@ -17,8 +21,6 @@ const CreateRoom = ({ setShowJoinForm }) => {
         userName: name,
       }
     );
-
-    // console.log(data,'data')
 
     const localRoomInfo = {
       roomName: data.roomName,
@@ -36,15 +38,8 @@ const CreateRoom = ({ setShowJoinForm }) => {
     sessionStorage.setItem("roomInfo", JSON.stringify(data));
     sessionStorage.setItem("currentUser", JSON.stringify(currentUserObj));
 
-    // create chatRoom
-    // const res = await axios.post(
-    //   `${process.env.NEXT_PUBLIC_API_URL}/api/chat/createChat`,
-    //   {
-    //     ...localRoomInfo,
-    //   }
-    // );
-
     router.push(`/room/${data.roomName}`);
+    setIsLoading(false);
   };
   return (
     <div>
@@ -62,9 +57,15 @@ const CreateRoom = ({ setShowJoinForm }) => {
         <br />
         <button
           type="submit"
-          className="bg-my_purple mb-6 text-[#FFFF] px-3 py-2 rounded-md"
+          className={`${
+            isLoading ? "bg-white" : "bg-my_purple"
+          } mb-6 text-[#FFFF] px-3 py-2 rounded-md`}
         >
-          Create a room
+          {isLoading ? (
+            <CircularProgress sx={{ color: "#7E30E1" }} />
+          ) : (
+            "Create a room"
+          )}
         </button>
       </form>
 

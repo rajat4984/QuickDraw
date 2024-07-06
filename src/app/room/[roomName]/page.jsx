@@ -11,9 +11,11 @@ import Participants from "@/app/components/Participants";
 import toast, { Toaster } from "react-hot-toast";
 import Canvas from "@/app/components/Canvas";
 import UserCanvas from "@/app/components/UserCanvas";
+import { notFound } from "next/navigation";
 
 const page = () => {
   const [chatOpen, setChatOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [participantsOpen, setParticipantsOpen] = useState(false);
   const {
     setCurrentUserInfo,
@@ -21,9 +23,16 @@ const page = () => {
     currentUserInfo,
     roomInfo,
     socketState,
+    isPen,
+    setIsPen,
   } = useGlobalContext();
-
   const router = useRouter();
+
+  useEffect(() => {
+    const currentRoomInfo = sessionStorage.getItem("roomInfo");
+
+    if (!currentRoomInfo) notFound();
+  }, []);
 
   useEffect(() => {
     const localRoomInfo = JSON.parse(sessionStorage.getItem("roomInfo"));
@@ -56,6 +65,7 @@ const page = () => {
 
     const handleUpdateParticipants = (updatedRoomData) => {
       toast.success(updatedRoomData.payload.notification);
+      console.log(updatedRoomData, "updatedRoom");
       setRoomInfo({ ...updatedRoomData.payload.data });
       sessionStorage.setItem(
         "roomInfo",
@@ -137,19 +147,28 @@ const page = () => {
                 <div className="flex justify-evenly items-center mt-5 mx-8 md:justify-center">
                   <div>
                     <FaRegUser
+                      className="cursor-pointer"
                       onClick={() => setParticipantsOpen(!participantsOpen)}
                       size={25}
                     />
                   </div>
                   <div className="bg-red-600 p-2 rounded-full shadow-xl md:ml-4">
                     <MdCallEnd
-                      onClick={(e) => callEndHandler(e)}
+                      onClick={(e) => {
+                        callEndHandler(e);
+                        setIsPen("Pen");
+                      }}
                       size={25}
-                      className="text-white"
+                      className="text-white cursor-pointer"
                     />
                   </div>
                   <div className="lg:hidden" onClick={() => setChatOpen(true)}>
                     <MdChat size={25} />
+                  </div>
+                  <div className="ml-4">
+                    <button onClick={() => setIsPen(!isPen)}>
+                      {isPen ? "Pen" : "Eraser"}
+                    </button>
                   </div>
                 </div>
                 <p className="hidden md:block absolute top-[0]">
