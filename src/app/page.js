@@ -1,6 +1,17 @@
+"use client";
+import React from "react";
+import Form from "./components/Form";
+import Footer from "./components/Footer";
+import Navbar from "./components/Navbar";
 
-export default function Home() {
+const page = () => {
   return (
-   <h1>Quick</h1>
+    <div className="min-h-max">
+      <Navbar />
+      <Form />
+      <Footer />
+    </div>
   );
-}
+};
+
+export default page;

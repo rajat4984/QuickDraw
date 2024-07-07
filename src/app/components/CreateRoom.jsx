@@ -39,7 +39,9 @@ const CreateRoom = ({ setShowJoinForm }) => {
     sessionStorage.setItem("currentUser", JSON.stringify(currentUserObj));
 
     router.push(`/room/${data.roomName}`);
-    setIsLoading(false);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
   };
   return (
     <div>

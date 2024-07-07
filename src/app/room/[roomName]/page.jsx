@@ -30,8 +30,19 @@ const page = () => {
 
   useEffect(() => {
     const currentRoomInfo = sessionStorage.getItem("roomInfo");
-
     if (!currentRoomInfo) notFound();
+
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      callEndHandler();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
   }, []);
 
   useEffect(() => {
@@ -116,7 +127,7 @@ const page = () => {
     sessionStorage.clear();
     setRoomInfo({});
     setCurrentUserInfo({});
-    router.push(`/joinRoom`);
+    router.push(`/`);
   };
 
   return (
