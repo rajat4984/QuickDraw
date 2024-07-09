@@ -3,7 +3,7 @@ import React from "react";
 
 const Loading = () => {
   return (
-    <div className="flex items-center justify-center h-96">
+    <div className="flex items-center justify-center h-screen">
       <CircularProgress size={70} sx={{ color: "#7E30E1" }} />
     </div>
   );

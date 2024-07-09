@@ -6,6 +6,7 @@ const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [roomInfo, setRoomInfo] = useState({});
+  const [credentials, setCredentials] = useState({});
   const [isPen, setIsPen] = useState(true);
   const [currentUserInfo, setCurrentUserInfo] = useState({});
   const [socketState, setSocketState] = useState(null);
@@ -22,6 +23,8 @@ export const AppProvider = ({ children }) => {
   return (
     <AppContext.Provider
       value={{
+        credentials,
+        setCredentials,
         roomInfo,
         setRoomInfo,
         currentUserInfo,

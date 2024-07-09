@@ -10,14 +10,14 @@ import Participants from "@/app/components/Participants";
 import toast, { Toaster } from "react-hot-toast";
 import Canvas from "@/app/components/Canvas";
 import UserCanvas from "@/app/components/UserCanvas";
-import { notFound } from "next/navigation";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import Loading from "@/app/components/Loading";
 
 const page = () => {
   const [chatOpen, setChatOpen] = useState(false);
-  // const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [participantsOpen, setParticipantsOpen] = useState(false);
   const {
     setCurrentUserInfo,
@@ -41,23 +41,7 @@ const page = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const currentRoomInfo = sessionStorage.getItem("roomInfo");
-    if (!currentRoomInfo) notFound();
-
-    const handleBeforeUnload = (event) => {
-      event.preventDefault();
-      callEndHandler();
-      event.returnValue = "";
-    };
-
-    // window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      // window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
-
-  useEffect(() => {
+    setLoading(true);
     const localRoomInfo = JSON.parse(sessionStorage.getItem("roomInfo"));
     const localCurrentUser = JSON.parse(sessionStorage.getItem("currentUser"));
 
@@ -68,7 +52,25 @@ const page = () => {
     if (localCurrentUser) {
       setCurrentUserInfo({ ...localCurrentUser });
     }
+
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (isPen) {
+      toast("Pen mode", {
+        style: { color: "#7E30E1" },
+        icon: "🟣",
+        duration: 800,
+      });
+    } else {
+      toast("Eraser mode", {
+        style: { color: "#7E30E1" },
+        icon: "🟣",
+        duration: 1000,
+      });
+    }
+  }, [isPen]);
 
   useEffect(() => {
     const handleConnect = () => {
@@ -107,6 +109,7 @@ const page = () => {
   }, [socketState]);
 
   const callEndHandler = async (e) => {
+    setLoading(true);
     const currentUserId = currentUserInfo.currentUserId;
     const { ownerId } = roomInfo.roomOwner;
     const { roomName } = roomInfo;
@@ -139,92 +142,120 @@ const page = () => {
     sessionStorage.clear();
     setRoomInfo({});
     setCurrentUserInfo({});
-    router.push(`/`);
+    setTimeout(() => {
+      router.push(`/`);
+      setLoading(false);
+    }, 1000);
   };
+
+  const copyToClipboard = ()=>{
+    navigator.clipboard.writeText(`RoomName: ${roomInfo.roomName}, RoomPassword: ${roomInfo.roomPassword}`);
+    toast("Room Info copied", {
+      style: { color: "#7E30E1" },
+      icon: "🟣",
+      duration: 800,
+    });
+
+  }
 
   return (
     <div>
       <Toaster />
-      <div className="flex flex-col justify-around m-2">
-        {chatOpen ? (
-          <>
-            {/* CHAT */}
-            <div>{chatOpen && <Chat setChatOpen={setChatOpen} />}</div>
-          </>
-        ) : (
-          <div className="mx-3 flex items-center">
-            <Menu
-              id="basic-menu"
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              MenuListProps={{
-                "aria-labelledby": "basic-button",
-              }}
-            >
-              <MenuItem
-                onClick={() => {
-                  handleClose;
-                  setIsPen(!isPen);
+      {loading ? (
+        <Loading />
+      ) : (
+        <div className="flex flex-col justify-around m-2">
+          {chatOpen ? (
+            <>
+              {/* CHAT */}
+              <div>{chatOpen && <Chat setChatOpen={setChatOpen} />}</div>
+            </>
+          ) : (
+            <div className="mx-3 flex items-center">
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  "aria-labelledby": "basic-button",
                 }}
               >
-                <p>{isPen ? "Pen" : "Eraser"}</p>
-              </MenuItem>
-              <MenuItem onClick={handleClose}>
-                {" "}
-                <p
-                  className="cursor-pointer"
-                  onClick={() => setParticipantsOpen(!participantsOpen)}
-                  size={25}
-                >Participants</p>
-              </MenuItem>
-            </Menu>
-            {/* //WHITEBOARD */}
-            <div className="cursor-[url('./eraser.png'), auto]">
-              {/* ----------CANVAS------------- */}
-              <div className={`relative `}>
-                {participantsOpen && <Participants setParticipantsOpen={setParticipantsOpen} />}
+                <MenuItem
+                  onClick={() => {
+                    handleClose();
+                    setIsPen(!isPen);
+                  }}
+                >
+                  <p>{isPen ? "Pen" : "Eraser"}</p>
+                </MenuItem>
+                <MenuItem onClick={handleClose}>
+                  {" "}
+                  <p
+                    className="cursor-pointer"
+                    onClick={() => setParticipantsOpen(!participantsOpen)}
+                    size={25}
+                  >
+                    Participants
+                  </p>
+                </MenuItem>
+                <MenuItem onClick={handleClose}>
+                  {" "}
+                  <p onClickCapture={copyToClipboard}>Copy Room info</p>
+                </MenuItem>
+              </Menu>
+              {/* //WHITEBOARD */}
+              <div className="cursor-[url('./eraser.png'), auto]">
+                {/* ----------CANVAS------------- */}
+                <div className={`relative `}>
+                  {participantsOpen && (
+                    <Participants setParticipantsOpen={setParticipantsOpen} />
+                  )}
 
-                {roomInfo?.roomOwner?.ownerId ===
-                currentUserInfo?.currentUserId ? (
-                  <Canvas />
-                ) : (
-                  <UserCanvas />
-                )}
-              </div>
-              <div className="relative">
-                <div className="flex justify-evenly items-center mt-5 mx-8 md:justify-center">
-                  <div></div>
-                  <div className="bg-red-600 p-2 rounded-full shadow-xl md:ml-4">
-                    <MdCallEnd
-                      onClick={(e) => {
-                        callEndHandler(e);
-                        setIsPen("Pen");
-                      }}
-                      size={25}
-                      className="text-white cursor-pointer"
-                    />
-                  </div>
-                  <div className="lg:hidden" onClick={() => setChatOpen(true)}>
-                    <MdChat size={25} />
-                  </div>
-                  <div className="md:ml-4">
-                    <BsThreeDotsVertical onClick={handleClick} />
-                  </div>
+                  {roomInfo?.roomOwner?.ownerId ===
+                  currentUserInfo?.currentUserId ? (
+                    <Canvas />
+                  ) : (
+                    <UserCanvas />
+                  )}
                 </div>
-                <p className="hidden md:block absolute top-[0]">
-                  {roomInfo?.ownerDetails &&
-                    roomInfo?.ownerDetails[0].ownerName}
-                </p>
+                <div className="relative">
+                  <div className="flex justify-evenly items-center mt-5 mx-8 md:justify-center">
+                    <div></div>
+                    <div className="bg-red-600 p-2 rounded-full shadow-xl md:ml-4">
+                      <MdCallEnd
+                        onClick={(e) => {
+                          callEndHandler(e);
+                          setIsPen("Pen");
+                        }}
+                        size={25}
+                        className="text-white cursor-pointer"
+                      />
+                    </div>
+                    <div
+                      className="lg:hidden"
+                      onClick={() => setChatOpen(true)}
+                    >
+                      <MdChat size={25} />
+                    </div>
+                    <div className="md:ml-4">
+                      <BsThreeDotsVertical onClick={handleClick} />
+                    </div>
+                  </div>
+                  <p className="hidden md:block absolute top-[0]">
+                    {roomInfo?.ownerDetails &&
+                      roomInfo?.ownerDetails[0].ownerName}
+                  </p>
+                </div>
+              </div>
+
+              <div className="hidden lg:block mt-2 self-baseline w-[40%]">
+                <Chat />
               </div>
             </div>
-
-            <div className="hidden lg:block mt-2 self-baseline w-[40%]">
-              <Chat />
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

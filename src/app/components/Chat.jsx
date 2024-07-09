@@ -10,22 +10,24 @@ import Message from "./Message";
 const Chat = ({ setChatOpen }) => {
   const { roomInfo, currentUserInfo, setRoomInfo, socketState } =
     useGlobalContext();
-const [messageVal, setMessageVal] = useState("");
-const chatContainerRef = useRef(null);
+  const [messageVal, setMessageVal] = useState("");
+  const chatContainerRef = useRef(null);
 
   useEffect(() => {
     socketState?.on("messageReceived", ({ payload }) => {
       setRoomInfo({ ...payload.payload });
-      sessionStorage.setItem("roomInfo", JSON.stringify({ ...payload.payload }));
+      sessionStorage.setItem(
+        "roomInfo",
+        JSON.stringify({ ...payload.payload })
+      );
     });
   }, []);
-
 
   useEffect(() => {
     // Scroll to the bottom of the chat container whenever roomInfo changes
     chatContainerRef.current?.scrollTo({
       top: chatContainerRef.current.scrollHeight,
-      behavior: 'smooth',
+      behavior: "smooth",
     });
   }, [roomInfo]);
 
@@ -50,7 +52,10 @@ const chatContainerRef = useRef(null);
   };
   return (
     <>
-      <div ref={chatContainerRef} className="relative md:w-1/2 lg:w-10/12 mx-auto my-0 border form-shadow rounded-xl h-[80vh] chat-scroll  flex flex-col overflow-y-scroll">
+      <div
+        ref={chatContainerRef}
+        className="relative md:w-1/2 lg:w-10/12 mx-auto my-0 border form-shadow rounded-xl h-[80vh] chat-scroll  flex flex-col overflow-y-scroll"
+      >
         <div onClick={() => setChatOpen(false)} className="m-2 lg:hidden">
           <IoCloseOutline className="absolute right-[2%] top-[1%] w-5" />
         </div>
@@ -59,19 +64,6 @@ const chatContainerRef = useRef(null);
           {roomInfo?.chatRoomData?.map((messageObj) => {
             return <Message messageObj={messageObj} />;
           })}
-
-          {/* <div>
-            <Message />
-          </div>
-          <div className="self-end">
-            <Message />
-          </div>
-          <div>
-            <Message />
-          </div>
-          <div>
-            <Message />
-          </div>  */}
 
           {/* MESSAGE INPUT */}
           <div>

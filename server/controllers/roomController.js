@@ -30,7 +30,7 @@ const createRoom = async (req, res) => {
 
     await newRoom.save();
     const roomData = newRoom.toObject();
-    delete roomData.roomPassword;
+    // delete roomData.roomPassword;
 
     res.status(200).json(roomData);
   } catch (error) {
@@ -81,7 +81,7 @@ const joinRoom = async (req, res) => {
     room.participantsArray.push(newParticipant);
     await room.save();
     const roomData = room.toObject();
-    delete roomData.roomPassword;
+    // delete roomData.roomPassword;
 
     return res.status(200).json(roomData);
   } catch (error) {
