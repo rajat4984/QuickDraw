@@ -3,11 +3,10 @@ import React from "react";
 
 const Message = ({ messageObj }) => {
   const { currentUserInfo } = useGlobalContext();
-  console.log( currentUserInfo?.currentUserId)
   return (
     <div
       className={
-        currentUserInfo?.currentUserId === messageObj.senderId ? "self-end" : ""
+       `${currentUserInfo?.currentUserId === messageObj.senderId ? "self-end" : ""} transition-all`
       }
     >
       <div className="border rounded-lg p-2 max-w-52 text-xs mx-4 my-3">

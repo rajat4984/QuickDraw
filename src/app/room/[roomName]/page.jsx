@@ -1,8 +1,7 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Chat from "./../../components/Chat";
 import { MdCallEnd } from "react-icons/md";
-import { FaRegUser } from "react-icons/fa";
 import { MdChat } from "react-icons/md";
 import { useGlobalContext } from "@/context";
 import axios from "axios";
@@ -12,10 +11,13 @@ import toast, { Toaster } from "react-hot-toast";
 import Canvas from "@/app/components/Canvas";
 import UserCanvas from "@/app/components/UserCanvas";
 import { notFound } from "next/navigation";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { BsThreeDotsVertical } from "react-icons/bs";
 
 const page = () => {
   const [chatOpen, setChatOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [participantsOpen, setParticipantsOpen] = useState(false);
   const {
     setCurrentUserInfo,
@@ -26,6 +28,16 @@ const page = () => {
     isPen,
     setIsPen,
   } = useGlobalContext();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   const router = useRouter();
 
   useEffect(() => {
@@ -38,10 +50,10 @@ const page = () => {
       event.returnValue = "";
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    // window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      // window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
 
@@ -141,11 +153,37 @@ const page = () => {
           </>
         ) : (
           <div className="mx-3 flex items-center">
+            <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              MenuListProps={{
+                "aria-labelledby": "basic-button",
+              }}
+            >
+              <MenuItem
+                onClick={() => {
+                  handleClose;
+                  setIsPen(!isPen);
+                }}
+              >
+                <p>{isPen ? "Pen" : "Eraser"}</p>
+              </MenuItem>
+              <MenuItem onClick={handleClose}>
+                {" "}
+                <p
+                  className="cursor-pointer"
+                  onClick={() => setParticipantsOpen(!participantsOpen)}
+                  size={25}
+                >Participants</p>
+              </MenuItem>
+            </Menu>
             {/* //WHITEBOARD */}
-            <div>
+            <div className="cursor-[url('./eraser.png'), auto]">
               {/* ----------CANVAS------------- */}
-              <div className="relative">
-                {participantsOpen && <Participants />}
+              <div className={`relative `}>
+                {participantsOpen && <Participants setParticipantsOpen={setParticipantsOpen} />}
 
                 {roomInfo?.roomOwner?.ownerId ===
                 currentUserInfo?.currentUserId ? (
@@ -156,13 +194,7 @@ const page = () => {
               </div>
               <div className="relative">
                 <div className="flex justify-evenly items-center mt-5 mx-8 md:justify-center">
-                  <div>
-                    <FaRegUser
-                      className="cursor-pointer"
-                      onClick={() => setParticipantsOpen(!participantsOpen)}
-                      size={25}
-                    />
-                  </div>
+                  <div></div>
                   <div className="bg-red-600 p-2 rounded-full shadow-xl md:ml-4">
                     <MdCallEnd
                       onClick={(e) => {
@@ -176,10 +208,8 @@ const page = () => {
                   <div className="lg:hidden" onClick={() => setChatOpen(true)}>
                     <MdChat size={25} />
                   </div>
-                  <div className="ml-4">
-                    <button onClick={() => setIsPen(!isPen)}>
-                      {isPen ? "Pen" : "Eraser"}
-                    </button>
+                  <div className="md:ml-4">
+                    <BsThreeDotsVertical onClick={handleClick} />
                   </div>
                 </div>
                 <p className="hidden md:block absolute top-[0]">

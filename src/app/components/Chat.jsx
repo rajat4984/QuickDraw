@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { IoSend } from "react-icons/io5";
 import { IoCloseOutline } from "react-icons/io5";
 import { useGlobalContext } from "@/context";
@@ -11,13 +11,23 @@ const Chat = ({ setChatOpen }) => {
   const { roomInfo, currentUserInfo, setRoomInfo, socketState } =
     useGlobalContext();
 const [messageVal, setMessageVal] = useState("");
+const chatContainerRef = useRef(null);
 
   useEffect(() => {
     socketState?.on("messageReceived", ({ payload }) => {
-      setRoomInfo({ ...payload });
-      sessionStorage.setItem("roomInfo", JSON.stringify({ ...payload }));
+      setRoomInfo({ ...payload.payload });
+      sessionStorage.setItem("roomInfo", JSON.stringify({ ...payload.payload }));
     });
   }, []);
+
+
+  useEffect(() => {
+    // Scroll to the bottom of the chat container whenever roomInfo changes
+    chatContainerRef.current?.scrollTo({
+      top: chatContainerRef.current.scrollHeight,
+      behavior: 'smooth',
+    });
+  }, [roomInfo]);
 
   const sendMessage = async () => {
     const { data } = await axios.post(
@@ -40,7 +50,7 @@ const [messageVal, setMessageVal] = useState("");
   };
   return (
     <>
-      <div className="relative md:w-1/2 lg:w-10/12 mx-auto my-0 border form-shadow rounded-xl h-[80vh] chat-scroll  flex flex-col overflow-y-scroll">
+      <div ref={chatContainerRef} className="relative md:w-1/2 lg:w-10/12 mx-auto my-0 border form-shadow rounded-xl h-[80vh] chat-scroll  flex flex-col overflow-y-scroll">
         <div onClick={() => setChatOpen(false)} className="m-2 lg:hidden">
           <IoCloseOutline className="absolute right-[2%] top-[1%] w-5" />
         </div>

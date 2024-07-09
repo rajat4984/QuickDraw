@@ -49,6 +49,7 @@ const JoinRoom = ({ setShowJoinForm }) => {
         data,
         notification: `${currentUserObj.currentUserName} joined the room`,
       });
+      console.log(data,'mydatainlogo');
       sessionStorage.setItem("roomInfo", JSON.stringify(data));
       sessionStorage.setItem("currentUser", JSON.stringify(currentUserObj));
       router.push(`/room/${data.roomName}`);
