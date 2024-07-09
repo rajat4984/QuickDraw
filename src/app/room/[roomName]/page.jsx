@@ -148,15 +148,16 @@ const page = () => {
     }, 1000);
   };
 
-  const copyToClipboard = ()=>{
-    navigator.clipboard.writeText(`RoomName: ${roomInfo.roomName}, RoomPassword: ${roomInfo.roomPassword}`);
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(
+      `RoomName: ${roomInfo.roomName}, RoomPassword: ${roomInfo.roomPassword}`
+    );
     toast("Room Info copied", {
       style: { color: "#7E30E1" },
       icon: "🟣",
       duration: 800,
     });
-
-  }
+  };
 
   return (
     <div>
@@ -181,14 +182,17 @@ const page = () => {
                   "aria-labelledby": "basic-button",
                 }}
               >
-                <MenuItem
-                  onClick={() => {
-                    handleClose();
-                    setIsPen(!isPen);
-                  }}
-                >
-                  <p>{isPen ? "Pen" : "Eraser"}</p>
-                </MenuItem>
+                {roomInfo.roomOwner.ownerId === currentUserInfo.currentUserId && (
+                  <MenuItem
+                    onClick={() => {
+                      handleClose();
+                      setIsPen(!isPen);
+                    }}
+                  >
+                    <p>{isPen ? "Pen" : "Eraser"}</p>
+                  </MenuItem>
+                )}
+
                 <MenuItem onClick={handleClose}>
                   {" "}
                   <p
