@@ -10,7 +10,21 @@ const Canvas = () => {
   const [lastPostTime, setLastPostTime] = useState(0);
   const eraserRadius = 8;
 
+  const resizeCanvas = () => {
+    const canvas = canvasRef.current;
+    if (window.innerWidth < 468) {
+      canvas.width = window.innerWidth - 40;
+    } else if (window.innerWidth > 468 && window.innerWidth < 1024) {
+      canvas.width = window.innerWidth - 50;
+    } else {
+      canvas.width = window.innerWidth - 500;
+    }
+    canvas.height = window.innerHeight * 0.8;
+
+  };
+
   useEffect(() => {
+    resizeCanvas();
     const localCanvasImg = JSON.parse(sessionStorage.getItem("canvasImg"));
 
     const canvas = canvasRef.current;
@@ -21,15 +35,6 @@ const Canvas = () => {
 
     setCanvasCtx(ctx);
 
-    if (window.innerWidth < 468) {
-      canvas.width = window.innerWidth - 40;
-    } else if (window.innerWidth > 468 && window.innerWidth < 1024) {
-      canvas.width = window.innerWidth - 50;
-    } else {
-      canvas.width = window.innerWidth - 500;
-    }
-    canvas.height = window.innerHeight * 0.8;
-
     if (localCanvasImg) {
       const img = new Image();
       img.onload = () => {
@@ -37,6 +42,11 @@ const Canvas = () => {
       };
       img.src = localCanvasImg;
     }
+
+    window.addEventListener("resize", resizeCanvas);
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+    };
   }, []);
 
   const getCoords = (e) => {
@@ -65,7 +75,7 @@ const Canvas = () => {
   const draw = (e) => {
     if (!isDrawing) return;
 
-    const canvas = canvasRef.current
+    const canvas = canvasRef.current;
 
     const { x, y } = getCoords(e);
     if (isPen) {
@@ -80,7 +90,6 @@ const Canvas = () => {
       canvasCtx.stroke();
       canvasCtx.strokeStyle = "black"; // Reset to pen color
       canvasCtx.lineWidth = 2;
-      console.log("Eraser");
     }
 
     socketState?.emit("broadCast", {
