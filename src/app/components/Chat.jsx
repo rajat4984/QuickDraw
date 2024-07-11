@@ -54,13 +54,13 @@ const Chat = ({ setChatOpen }) => {
     <>
       <div
         ref={chatContainerRef}
-        className="relative md:w-1/2 lg:w-10/12 mx-auto my-0 border form-shadow rounded-xl h-[80vh] chat-scroll  flex flex-col overflow-y-scroll"
+        className="relative md:w-1/2 lg:w-10/12 mx-auto my-0 border form-shadow rounded-xl h-[80vh] chat-scroll  grid  overflow-y-scroll"
       >
         <div onClick={() => setChatOpen(false)} className="m-2 lg:hidden">
           <IoCloseOutline className="absolute right-[2%] top-[1%] w-5" />
         </div>
         {/* MESSAGES */}
-        <div className="flex flex-col">
+        <div className="flex flex-col self-end">
           {roomInfo?.chatRoomData?.map((messageObj) => {
             return <Message messageObj={messageObj} />;
           })}

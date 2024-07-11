@@ -182,7 +182,7 @@ const page = () => {
                   "aria-labelledby": "basic-button",
                 }}
               >
-                {roomInfo.roomOwner.ownerId === currentUserInfo.currentUserId && (
+                {roomInfo?.roomOwner?.ownerId === currentUserInfo?.currentUserId && (
                   <MenuItem
                     onClick={() => {
                       handleClose();
